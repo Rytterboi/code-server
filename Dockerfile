@@ -35,7 +35,7 @@ RUN sudo chown -R coder:coder /home/coder/.local
 # -----------
 
 # Install NodeJS
-RUN sudo curl -fsSL https://deb.nodesource.com/setup_15.x | sudo bash -
+RUN sudo curl -fsSL https://deb.nodesource.com/setup_21.x | sudo bash -
 RUN sudo apt-get install -y nodejs
 
 # Port
