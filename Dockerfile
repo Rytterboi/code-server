@@ -19,6 +19,10 @@ COPY deploy-container/rclone-tasks.json /tmp/rclone-tasks.json
 # Fix permissions for code-server
 RUN sudo chown -R coder:coder /home/coder/.local
 
+# Install Docker
+RUN curl -fsSL https://get.docker.com -o get-docker.sh
+RUN sudo sh get-docker.sh
+
 # You can add custom software and dependencies for your environment below
 # -----------
 
