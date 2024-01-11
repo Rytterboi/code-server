@@ -3,22 +3,6 @@ FROM codercom/code-server:4.9.0
 
 USER root
 
-# Install dependencies for Podman
-RUN apt-get update && apt-get install -y software-properties-common uidmap
-
-# Add the Podman repository
-RUN . /etc/os-release && \
-    sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Debian_$VERSION_ID/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list" && \
-    wget -nv https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/Debian_$VERSION_ID/Release.key -O Release.key && \
-    apt-key add - < Release.key && \
-    apt-get update
-
-# Install Podman
-RUN apt-get -y install podman
-
-# Switch back to the coder user
-USER coder
-
 # Apply VS Code settings
 COPY deploy-container/settings.json .local/share/code-server/User/settings.json
 
@@ -26,20 +10,39 @@ COPY deploy-container/settings.json .local/share/code-server/User/settings.json
 ENV SHELL=/bin/bash
 
 # Install unzip + rclone (support for remote filesystem)
-RUN sudo apt-get update && sudo apt-get install unzip -y
-RUN curl https://rclone.org/install.sh | sudo bash
+RUN apt-get update && apt-get install unzip -y
+RUN curl https://rclone.org/install.sh | bash
 
 # Copy rclone tasks to /tmp, to potentially be used
 COPY deploy-container/rclone-tasks.json /tmp/rclone-tasks.json
 
 # Fix permissions for code-server
-RUN sudo chown -R coder:coder /home/coder/.local
+RUN chown -R coder:coder /home/coder/.local
+
+# Install Docker
+RUN curl -fsSL https://get.docker.com -o get-docker.sh
+RUN sh get-docker.sh
+
+# Switch back to coder user
+USER coder
 
 # You can add custom software and dependencies for your environment below
 # -----------
 
+# Install a VS Code extension:
+# Note: we use a different marketplace than VS Code. See https://github.com/cdr/code-server/blob/main/docs/FAQ.md#differences-compared-to-vs-code
+# RUN code-server --install-extension esbenp.prettier-vscode
+
+# Install apt packages:
+# RUN sudo apt-get install -y ubuntu-make
+
+# Copy files: 
+# COPY deploy-container/myTool /home/coder/myTool
+
+# -----------
+
 # Install NodeJS
-RUN sudo curl -fsSL https://deb.nodesource.com/setup_21.x | sudo bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash -
 RUN sudo apt-get install -y nodejs
 
 # Port
